@@ -284,9 +284,9 @@ BigBrowserV2.prototype.getUser = function(member)
             user.stats[name] = 0;
     }
     
-    zero('totalWarframeDiscordTimeMs');
-    zero('totalWarframeDiscordTimeMsNot');
-    zero('totalWarframeDiscordTimeMsUndefined');
+    zero('totalAnthemDiscordTimeMs');
+    zero('totalAnthemDiscordTimeMsNot');
+    zero('totalAnthemDiscordTimeMsUndefined');
 
     return user;
 }
@@ -337,10 +337,10 @@ BigBrowserV2.prototype.initWithV1Data = function(servers)
                         lastTextDate: oldUser.textActivity_date,
                         lastNotDuplicateTextDate: oldUser.textActivity_date,
                         wasVoicingLastTick: false,
-                        totalWarframeDiscordTimeMs: oldUser.warframeActivity ? oldUser.warframeActivity * 500 : undefined,
-                        lastWarframeDiscordDate: oldUser.warframeActivity_date ? oldUser.warframeActivity_date : undefined,
-                        totalWarframeDiscordTimeMsUndefined: oldUser.warframeActivity_total ? oldUser.warframeActivity_total * 500 : undefined,
-                        lastWarframeDiscordDateUndefined: oldUser.warframeActivity_date ? oldUser.warframeActivity_date : undefined
+                        totalAnthemDiscordTimeMs: oldUser.anthemActivity ? oldUser.anthemActivity * 500 : undefined,
+                        lastAnthemDiscordDate: oldUser.anthemActivity_date ? oldUser.anthemActivity_date : undefined,
+                        totalAnthemDiscordTimeMsUndefined: oldUser.anthemActivity_total ? oldUser.anthemActivity_total * 500 : undefined,
+                        lastAnthemDiscordDateUndefined: oldUser.anthemActivity_date ? oldUser.anthemActivity_date : undefined
                     }
                 };
 
@@ -393,57 +393,57 @@ BigBrowserV2.prototype.updateServer = function(guild)
             return;*/
         const user = this.getUser(member);
 
-        let isInWarframe = undefined;
+        let isInAnthem = undefined;
         if(member.user.presence && member.user.presence.game && member.user.presence.game.name)
-            isInWarframe = member.user.presence.game.name.toLowerCase() === 'warframe';
+            isInAnthem = member.user.presence.game.name.toLowerCase() === 'anthem';
 
-        if(isInWarframe !== undefined)
+        if(isInAnthem !== undefined)
         {
-            if(isInWarframe)
+            if(isInAnthem)
             {
-                if(!user.stats.wasWarframeDiscordLastTick)
+                if(!user.stats.wasAnthemDiscordLastTick)
                 {
-                    user.stats.wasWarframeDiscordLastTick = true;
+                    user.stats.wasAnthemDiscordLastTick = true;
                 }
                 else
                 {
-                    user.stats.totalWarframeDiscordTimeMs += now - user.stats.lastWarframeDiscordDate;
+                    user.stats.totalAnthemDiscordTimeMs += now - user.stats.lastAnthemDiscordDate;
                 }
                 
-                user.stats.lastWarframeDiscordDate = now;
-                user.stats.wasWarframeDiscordLastTickNot = false;
+                user.stats.lastAnthemDiscordDate = now;
+                user.stats.wasAnthemDiscordLastTickNot = false;
             }
             else
             {
-                if(!user.stats.wasWarframeDiscordLastTickNot)
+                if(!user.stats.wasAnthemDiscordLastTickNot)
                 {
-                    user.stats.wasWarframeDiscordLastTickNot = true;
+                    user.stats.wasAnthemDiscordLastTickNot = true;
                 }
                 else
                 {
-                    user.stats.totalWarframeDiscordTimeMsNot += now - user.stats.lastWarframeDiscordDateNot;
+                    user.stats.totalAnthemDiscordTimeMsNot += now - user.stats.lastAnthemDiscordDateNot;
                 }
                 
-                user.stats.lastWarframeDiscordDateNot = now;
-                user.stats.wasWarframeDiscordLastTick = false;
+                user.stats.lastAnthemDiscordDateNot = now;
+                user.stats.wasAnthemDiscordLastTick = false;
             }
             
-            user.stats.wasWarframeDiscordLastTickUndefined = false;
+            user.stats.wasAnthemDiscordLastTickUndefined = false;
         }
         else
         {
-            if(!user.stats.wasWarframeDiscordLastTickUndefined)
+            if(!user.stats.wasAnthemDiscordLastTickUndefined)
             {
-                user.stats.wasWarframeDiscordLastTickUndefined = true;
+                user.stats.wasAnthemDiscordLastTickUndefined = true;
             }
             else
             {
-                user.stats.totalWarframeDiscordTimeMsUndefined += now - user.stats.lastWarframeDiscordDateUndefined;
+                user.stats.totalAnthemDiscordTimeMsUndefined += now - user.stats.lastAnthemDiscordDateUndefined;
             }
             
-            user.stats.lastWarframeDiscordDateUndefined = now;
-            user.stats.wasWarframeDiscordLastTickNot = false;
-            user.stats.wasWarframeDiscordLastTick = false;
+            user.stats.lastAnthemDiscordDateUndefined = now;
+            user.stats.wasAnthemDiscordLastTickNot = false;
+            user.stats.wasAnthemDiscordLastTick = false;
         }
         
         if(member.voiceChannelID && !member.deaf && member.voiceChannelID !== guild.afkChannelID)
@@ -886,13 +886,13 @@ BigBrowserV2.prototype.getServerFormatted = function(server, formatter) {
             formatter.asString('Nb messages textes (avec duplicatas)'),
             formatter.asString('Taille totale des messages textes (avec duplicatas)'),
             
-            formatter.asString('Temps total sur Warframe (%)'),
+            formatter.asString('Temps total sur Anthem (%)'),
 
-            formatter.asString('Temps total sur Warframe (ms)'),
-            formatter.asString('Dernière connection à Warframe'),
+            formatter.asString('Temps total sur Anthem (ms)'),
+            formatter.asString('Dernière connection à Anthem'),
 
-            formatter.asString('Temps total sur autre chose que Warframe (ms)'),
-            formatter.asString('Dernier jeu autre que Warframe'),
+            formatter.asString('Temps total sur autre chose que Anthem (ms)'),
+            formatter.asString('Dernier jeu autre que Anthem'),
 
             formatter.asString('Temps total sur aucune application (ms)'),
             formatter.asString('Dernière connection à aucune application'),
@@ -938,18 +938,18 @@ BigBrowserV2.prototype.getServerFormatted = function(server, formatter) {
                 formatter.asInteger(user.stats.nbTextMessagesWithDuplicates),
                 formatter.asInteger(user.stats.totalTextSizeWithDuplicates),
 
-                !user.stats.lastWarframeDiscordDate && !user.stats.lastWarframeDiscordDateNot
+                !user.stats.lastAnthemDiscordDate && !user.stats.lastAnthemDiscordDateNot
                     ? formatter.asString('N/A')
-                    : formatter.asPercent(user.stats.totalWarframeDiscordTimeMs / (user.stats.totalWarframeDiscordTimeMs + user.stats.totalWarframeDiscordTimeMsNot + user.stats.totalWarframeDiscordTimeMsUndefined)),
+                    : formatter.asPercent(user.stats.totalAnthemDiscordTimeMs / (user.stats.totalAnthemDiscordTimeMs + user.stats.totalAnthemDiscordTimeMsNot + user.stats.totalAnthemDiscordTimeMsUndefined)),
 
-                formatter.asInteger(user.stats.totalWarframeDiscordTimeMs),
-                formatter.asDate(user.stats.lastWarframeDiscordDate),
+                formatter.asInteger(user.stats.totalAnthemDiscordTimeMs),
+                formatter.asDate(user.stats.lastAnthemDiscordDate),
 
-                formatter.asInteger(user.stats.totalWarframeDiscordTimeMsNot),
-                formatter.asDate(user.stats.lastWarframeDiscordDateNot),
+                formatter.asInteger(user.stats.totalAnthemDiscordTimeMsNot),
+                formatter.asDate(user.stats.lastAnthemDiscordDateNot),
 
-                formatter.asInteger(user.stats.totalWarframeDiscordTimeMsUndefined),
-                formatter.asDate(user.stats.lastWarframeDiscordDateUndefined),
+                formatter.asInteger(user.stats.totalAnthemDiscordTimeMsUndefined),
+                formatter.asDate(user.stats.lastAnthemDiscordDateUndefined),
 
                 formatter.asDate(user.joinedTimestamp),
                 formatter.asString((user.roles || []).join(' / ')),

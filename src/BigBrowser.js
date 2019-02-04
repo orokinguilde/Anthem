@@ -73,8 +73,8 @@ BigBrowser.prototype.pingUserValue = function(server, user, name, ping) {
 BigBrowser.prototype.clearVocalActivity = function(server) {
     this.clearServerProperty(server, 'vocalActivity');
 }
-BigBrowser.prototype.pingWarframeActivity = function(server, user, ping) {
-    this.pingUserValue(server, user, 'warframeActivity', ping);
+BigBrowser.prototype.pingAnthemActivity = function(server, user, ping) {
+    this.pingUserValue(server, user, 'anthemActivity', ping);
 }
 BigBrowser.prototype.increaseVocalActivity = function(server, user, amount) {
     this.increaseUserValue(server, user, 'vocalActivity', amount);
@@ -118,12 +118,12 @@ BigBrowser.prototype.getTextSummaryByServer = function(server, markdown) {
         const nameTitle = 'Utilisateur';
         const vocalActivityTitle = 'Activité vocale';
         const textActivityTitle = 'Activité textuelle';
-        const warframeActivityTitle = 'Activité Warframe';
+        const anthemActivityTitle = 'Activité Anthem';
 
         let maxNameSize = nameTitle.length;
         let maxVocalActivitySize = vocalActivityTitle.length;
         let maxTextActivitySize = textActivityTitle.length;
-        let warframeActivity = warframeActivityTitle.length;
+        let anthemActivity = anthemActivityTitle.length;
 
         const usersObj = this.servers[server.id || server.__id__ || server];
         
@@ -201,12 +201,12 @@ BigBrowser.prototype.getTextSummaryByServer = function(server, markdown) {
                 return value;
             };
             
-            text += `${md ? '`' : ''}+ ${pad(nameTitle, maxNameSize)} | ${pad(vocalActivityTitle, maxVocalActivitySize)} | ${pad(textActivityTitle, maxTextActivitySize)} | ${pad(warframeActivityTitle, warframeActivity)} +${md ? '`' : ''}\r\n`;
-            text += `${md ? '`' : ''}+-${pad('', maxNameSize, undefined, '-')}---${pad('', maxVocalActivitySize, undefined, '-')}---${pad('', maxTextActivitySize, undefined, '-')}---${pad('', warframeActivity, undefined, '-')}-+${md ? '`' : ''}\r\n`;
+            text += `${md ? '`' : ''}+ ${pad(nameTitle, maxNameSize)} | ${pad(vocalActivityTitle, maxVocalActivitySize)} | ${pad(textActivityTitle, maxTextActivitySize)} | ${pad(anthemActivityTitle, anthemActivity)} +${md ? '`' : ''}\r\n`;
+            text += `${md ? '`' : ''}+-${pad('', maxNameSize, undefined, '-')}---${pad('', maxVocalActivitySize, undefined, '-')}---${pad('', maxTextActivitySize, undefined, '-')}---${pad('', anthemActivity, undefined, '-')}-+${md ? '`' : ''}\r\n`;
 
             if(users.length === 0)
             {
-                return pad('Aucun résultat à afficher', (maxNameSize + maxVocalActivitySize + maxTextActivitySize + warframeActivity + 2 + 3 + 3 + 3 + 2) / 2);
+                return pad('Aucun résultat à afficher', (maxNameSize + maxVocalActivitySize + maxTextActivitySize + anthemActivity + 2 + 3 + 3 + 3 + 2) / 2);
             }
             else
             {
@@ -214,12 +214,12 @@ BigBrowser.prototype.getTextSummaryByServer = function(server, markdown) {
                 {
                     if(user.tracking !== false)
                     {
-                        text += `${md ? '`' : ''}+ ${pad(user.__name__, maxNameSize)} | ${pad(formatValueAndDate(user.vocalActivity, user.vocalActivity_date), maxVocalActivitySize)} | ${pad(formatValueAndDate(user.textActivity, user.textActivity_date), maxTextActivitySize)} | ${pad(user.warframeActivity ? formatTextAndDate(Math.trunc(user.warframeActivity / user.warframeActivity_total * 100) + '%', user.warframeActivity_date, false) : 'N/A', warframeActivity)} +${md ? '`' : ''}\r\n`;
+                        text += `${md ? '`' : ''}+ ${pad(user.__name__, maxNameSize)} | ${pad(formatValueAndDate(user.vocalActivity, user.vocalActivity_date), maxVocalActivitySize)} | ${pad(formatValueAndDate(user.textActivity, user.textActivity_date), maxTextActivitySize)} | ${pad(user.anthemActivity ? formatTextAndDate(Math.trunc(user.anthemActivity / user.anthemActivity_total * 100) + '%', user.anthemActivity_date, false) : 'N/A', anthemActivity)} +${md ? '`' : ''}\r\n`;
                     }
                 }
             }
 
-            text += `${md ? '`' : ''}+-${pad('', maxNameSize, undefined, '-')}---${pad('', maxVocalActivitySize, undefined, '-')}---${pad('', maxTextActivitySize, undefined, '-')}---${pad('', warframeActivity, undefined, '-')}-+${md ? '`' : ''}\r\n`;
+            text += `${md ? '`' : ''}+-${pad('', maxNameSize, undefined, '-')}---${pad('', maxVocalActivitySize, undefined, '-')}---${pad('', maxTextActivitySize, undefined, '-')}---${pad('', anthemActivity, undefined, '-')}-+${md ? '`' : ''}\r\n`;
         }
     }
     else
@@ -247,7 +247,7 @@ BigBrowser.prototype.getTextSummaryByServerCSV = function(server, withBOM) {
         const nameTitle = 'Utilisateur';
         const vocalActivityTitle = 'Activité vocale';
         const textActivityTitle = 'Activité textuelle';
-        const warframeActivityTitle = 'Activité Warframe';
+        const anthemActivityTitle = 'Activité Anthem';
 
         const usersObj = this.servers[server.id || server.__id__ || server];
         
@@ -279,7 +279,7 @@ BigBrowser.prototype.getTextSummaryByServerCSV = function(server, withBOM) {
                 return formatTextAndDate(value + ' xp', date);
             }
 
-            text += `${nameTitle};${vocalActivityTitle};${textActivityTitle};${warframeActivityTitle}\r\n`;
+            text += `${nameTitle};${vocalActivityTitle};${textActivityTitle};${anthemActivityTitle}\r\n`;
 
             if(users.length === 0)
             {
@@ -291,7 +291,7 @@ BigBrowser.prototype.getTextSummaryByServerCSV = function(server, withBOM) {
                 {
                     if(user.tracking !== false)
                     {
-                        text += `${user.__name__};${formatValueAndDate(user.vocalActivity, user.vocalActivity_date)};${formatValueAndDate(user.textActivity, user.textActivity_date)};${user.warframeActivity ? formatTextAndDate(Math.trunc(user.warframeActivity / user.warframeActivity_total * 100) + '%', user.warframeActivity_date, false) : 'N/A'}\r\n`;
+                        text += `${user.__name__};${formatValueAndDate(user.vocalActivity, user.vocalActivity_date)};${formatValueAndDate(user.textActivity, user.textActivity_date)};${user.anthemActivity ? formatTextAndDate(Math.trunc(user.anthemActivity / user.anthemActivity_total * 100) + '%', user.anthemActivity_date, false) : 'N/A'}\r\n`;
                     }
                 }
             }

@@ -23,8 +23,7 @@ function Bot(options)
     this.errorCounters = {};
     this.stops = {
         memberAdd: {},
-        memberRemove: {},
-        eidolonsWarning: {}
+        memberRemove: {}
     };
 
     if(!this.noAutoInitialization)
@@ -127,23 +126,6 @@ Bot.prototype.ocCommand = function(message) {
         channel.send(embed).then(() => channel.send(messageContent));
     })
 }
-Bot.findTrioTeamRole = function(guild) {
-    return guild.roles.find(role => role.name.toLowerCase().indexOf('trio') >= 0 && role.name.toLowerCase().indexOf('team') >= 0);
-}
-Bot.prototype.joinTrioCommand = function(message) {
-    const role = Bot.findTrioTeamRole(message.guild);
-    message.member.addRole(role);
-
-    message.delete();
-    message.channel.send(`${message.author} a rejoint Trio Team ! :tada: `);
-}
-Bot.prototype.leaveTrioCommand = function(message) {
-    const role = Bot.findTrioTeamRole(message.guild);
-    message.member.removeRole(role);
-    
-    message.delete();
-    message.channel.send(`${message.author} a quitté Trio Team ! :cry: `);
-}
 Bot.prototype.helpCommand = function(message, group) {
 
     const authorIcon = 'https://media.discordapp.net/attachments/473609056163201024/475758769402544128/embleme_alliance.png?width=50&height=50';
@@ -156,23 +138,10 @@ Bot.prototype.helpCommand = function(message, group) {
     {
         embed
             .setAuthor('Help me!', authorIcon)
-            .addField('Tridolon', '`trio`, `join trio`, `leave trio`, `nonotif eidolonswarning`,\r\n`notif eidolonswarning`\r\n\r\n*Plus de détails :* `!helpme tridolon`\r\n¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
             .addField('Membres', '`nonotif memberadd`, `notif memberadd`, `nonotif memberleave`,\r\n`notif memberleave`\r\n\r\n*Plus de détails :* `!helpme membres`\r\n¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
             .addField('Twitch', '`twitch <name>`, `twitch remove <name>`\r\n\r\n*Plus de détails :* `!helpme twitch`\r\n¯¯¯¯¯¯¯¯¯¯¯¯¯¯')
             .addField('XP Vocal/Textuel', '`rank`, `rank templates`, `rank template <name>`, `ranks`, `server xp`, `server xp md`, `server xp csv`, `server xp txt`,\r\n`start server xp`, `stop server xp`, `start xp`, `stop xp`\r\n\r\n*Plus de détails :* `!helpme xp`\r\n¯¯¯¯¯¯¯¯¯¯¯')
             .setDescription('**Utilisation** : `!<ma_commande>`');
-    }
-    else if(group.toLowerCase() === 'tridolon')
-    {
-        embed
-            .setAuthor('Tridolon\r\n¯¯¯¯¯¯¯¯', authorIcon)
-            .setThumbnail('https://cdn.discordapp.com/attachments/473609056163201024/479613651918127114/Teralyst_1.png')
-            .setDescription(`
-:small_blue_diamond: **!trio** | Affiche les informations sur le trio
-:small_blue_diamond: **!join trio** | Rejoindre le role @Trio Team
-:small_orange_diamond: **!leave trio** | Quitter le role @Trio Team
-:small_orange_diamond: **!nonotif eidolonswarning** | Désactive les notifications de l'arrivée des Eidolons
-:small_blue_diamond: **!notif eidolonswarning** | Active les notifications de l'arrivée des Eidolons`.trim());
     }
     else if(group.toLowerCase() === 'membres')
     {
@@ -220,8 +189,7 @@ Bot.prototype.helpCommand = function(message, group) {
 Bot.findGeneralChannel = function(channels) {
     const channelNames = [
         /^[^a-zA-Z0-9]*g[eé]n[eé]ral[^a-zA-Z0-9]*$/img,
-        /^[^a-zA-Z0-9]*discussion[^a-zA-Z0-9]*$/img,
-        /^[^a-zA-Z0-9]*warframe[^a-zA-Z0-9]*$/img
+        /^[^a-zA-Z0-9]*discussion[^a-zA-Z0-9]*$/img
     ];
     
     const matchingChannels = channels
@@ -329,13 +297,7 @@ Bot.prototype.initialize = function() {
             });
         }
 
-        if(checkForCommand(/^\s*!trio\s*$/img))
-        {
-            this.application.addServerChannel(message.channel);
-            message.delete();
-            globals.saver.save();
-        }
-        else if(checkForCommand(/^\s*!mentor .+$/img))
+        if(checkForCommand(/^\s*!mentor .+$/img))
         {
             console.log('MENTOR');
             const mentions = message.mentions.members.array();
@@ -600,33 +562,11 @@ Bot.prototype.initialize = function() {
                 message.reply(':small_blue_diamond: Activation des notifications lorsqu\'un membre quitte le clan');
             });
         }
-        else if(checkForCommand(/^\s*!nonotif\s+eidolonswarning\s*$/img))
-        {
-            setCommonSetting(message, () => {
-                this.stops.eidolonsWarning[message.guild.id] = true;
-                message.reply(':small_orange_diamond: Désactivation des notifications pour les Eidolons');
-            });
-        }
-        else if(checkForCommand(/^\s*!notif\s+eidolonswarning\s*$/img))
-        {
-            setCommonSetting(message, () => {
-                delete this.stops.eidolonsWarning[message.guild.id];
-                message.reply(':small_blue_diamond: Activation des notifications pour les Eidolons')
-            });
-        }
         else if(checkForCommand(/^\s*!(?:help|aide)\s*(?:me|moi)\s*(.*)/img))
         {
             const match = /^\s*!(?:help|aide)\s*(?:me|moi)\s*(.*)/img.exec(message.content);
 
             this.helpCommand(message, match[1]);
-        }
-        else if(checkForCommand(/^\s*!(?:join|rejoindre)\s+trio\s*$/img))
-        {
-            this.joinTrioCommand(message);
-        }
-        else if(checkForCommand(/^\s*!(?:leave|quitter)\s+trio\s*$/img))
-        {
-            this.leaveTrioCommand(message);
         }
         else if(checkForCommand(/^\s*!server\s+xp\s*$/img))
         {
@@ -860,7 +800,7 @@ Bot.prototype.initialize = function() {
 
                                 if(member.user.presence && member.user.presence.game && member.user.presence.game.name)
                                 {
-                                    this.bigBrowser.pingWarframeActivity(voiceChannel.guild, member.user, member.user.presence.game.name.toLowerCase() === 'warframe');
+                                    this.bigBrowser.pingAnthemActivity(voiceChannel.guild, member.user, member.user.presence.game.name.toLowerCase() === 'anthem');
                                 }
 
                                 needToSave = true;
