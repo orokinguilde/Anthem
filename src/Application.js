@@ -1,5 +1,4 @@
 const Message = require('./Message');
-const Eidelon = require('./Eidelon');
 const Twitch = require('./Twitch');
 const Server = require('./Server');
 
@@ -14,7 +13,6 @@ function Application(bot, options)
 
     this.currentTwitchIndex = 0;
     this.twitches = [];
-    this.eidelon = new Eidelon();
     this.servers = [];
     this.bot = bot;
 }
@@ -28,7 +26,7 @@ Application.prototype.load = function(obj, ctx) {
     if(obj.servers)
     {
         this.servers = obj.servers.map(serverObj => {
-            const server = new Server(this, this.eidelon);
+            const server = new Server(this);
             server.load(serverObj, ctx);
             return server;
         });
@@ -54,26 +52,10 @@ Application.prototype.addServerChannel = function(channel) {
         }
     }
 
-    const newServer = new Server(this, this.eidelon);
+    const newServer = new Server(this);
     newServer.setChannel(channel);
     this.servers.push(newServer);
     newServer.update();
-}
-Application.prototype.updateEidelon = function(callback) {
-    if(this.servers.length === 0)
-    {
-        if(callback)
-            callback();
-        return;
-    }
-
-    this.eidelon.getInformation(eidelonInfo => {
-        for(const server of this.servers)
-            server.update(eidelonInfo);
-
-        if(callback)
-            callback();
-    })
 }
 Application.prototype.updateTwitches = function(callback) {
     if(this.twitches.length > 0)
@@ -130,9 +112,7 @@ Application.prototype.removeTwitch = function(streamer, channel) {
     }
 }
 Application.prototype.update = function(callback) {
-    this.updateEidelon(() => {
-        this.updateTwitches(callback);
-    })
+    this.updateTwitches(callback);
 }
 Application.prototype.start = function(force) {
     if(!this.interval || force)

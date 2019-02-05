@@ -3,10 +3,9 @@ const Message = require('./Message');
 const globals = require('./globals');
 const moment = require('moment-timezone');
 
-function Server(application, eidelon)
+function Server(application)
 {
     this.application = application;
-    this.eidelon = eidelon;
 
     this.messageManager = Message.createUniqueServerWideMessage();
 }
@@ -30,8 +29,7 @@ Server.prototype.getChannel = function() {
 Server.prototype.getGuild = function() {
     return this.messageManager.getGuild();
 }
-Server.prototype.update = function(eidelonInfo) {
-    this.updateEidelon(eidelonInfo);
+Server.prototype.update = function() {
 }
 
 module.exports = Server;
