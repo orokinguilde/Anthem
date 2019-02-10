@@ -222,7 +222,7 @@ var Canvas = (function () {
             if (e)
                 callback(e, undefined);
             else {
-                var buffer = new Buffer(base64, 'base64');
+                var buffer = Buffer.from(base64, 'base64');
                 callback(undefined, buffer);
             }
         });

@@ -586,7 +586,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServerCSV(message.guild, true);
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.csv'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.csv'));
         }
         else if(checkForCommand(/^\s*!server\s+xp\s+md\s*$/img))
         {
@@ -596,7 +596,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServerMarkDown(message.guild);
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.md'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.md'));
         }
         else if(checkForCommand(/^\s*!server\s+xp\s+txt\s*$/img))
         {
@@ -606,7 +606,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServerText(message.guild);
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.txt'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.txt'));
         }
         else if(checkForCommand(/^\s*!global\s+xp\s*$/img))
         {
@@ -626,7 +626,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServersCSV(client.guilds.map((guild) => guild), true);
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.csv'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.csv'));
         }
         else if(checkForCommand(/^\s*!global\s+xp\s+md\s*$/img))
         {
@@ -636,7 +636,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServersMarkDown(client.guilds.map((guild) => guild));
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.md'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.md'));
         }
         else if(checkForCommand(/^\s*!global\s+xp\s+txt\s*$/img))
         {
@@ -646,7 +646,7 @@ Bot.prototype.initialize = function() {
             const result = this.bigBrowserV2.getServersText(client.guilds.map((guild) => guild));
 
             message.delete();
-            message.channel.send(new Discord.Attachment(new Buffer(result), 'stats.txt'));
+            message.channel.send(new Discord.Attachment(Buffer.from(result), 'stats.txt'));
         }
         else if(checkForCommand(/^\s*!stop\s+server\s+xp\s*$/img))
         {
