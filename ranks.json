@@ -1,0 +1,68 @@
+[
+    {
+        "name": "Grabbit",
+        "icon": ":mouse:",
+        "level": 0,
+        "role": ":rabbit2:Grabbit"
+    },
+    {
+        "name": "Tesilar",
+        "icon": "🦗",
+        "level": 50,
+        "role": ":bug:Tésilar"
+    },
+    {
+        "name": "Lycan",
+        "icon": ":wolf:",
+        "level": 100,
+        "role": ":wolf:Lycan"
+    },
+    {
+        "name": "Brute",
+        "icon": ":monkey_face:",
+        "level": 150,
+        "role": ":bear:Brute"
+    },
+    {
+        "name": "Ursix",
+        "icon": ":gorilla:",
+        "level": 200,
+        "role": ":gorilla:Ursix"
+    },
+    {
+        "name": "Small Titan",
+        "icon": ":lifter:️",
+        "level": 250,
+        "role": ":dragon_face:Small Titan"
+    },
+    {
+        "name": "Titan",
+        "icon": ":fleur_de_lis:️",
+        "level": 300,
+        "role": ":dragon:Titan"
+    },
+    {
+        "name": "Sentinelle",
+        "icon": ":cyclone:",
+        "level": 350,
+        "role": ":performing_arts: Sentinelle"
+    },
+    {
+        "name": "Veilleur",
+        "icon": "⛨",
+        "level": 400,
+        "role": ":star:Veilleur"
+    },
+    {
+        "name": "Gardien",
+        "icon": ":crossed_swords:️",
+        "level": 450,
+        "role": ":sunny:️Gardien"
+    },
+    {
+        "name": "Démiurge",
+        "icon": ":trident:",
+        "level": 500,
+        "role": ":sun_with_face:Demiurge"
+    }
+]
