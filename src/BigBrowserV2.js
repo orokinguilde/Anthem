@@ -110,26 +110,30 @@ BigBrowserV2.prototype.updateUserRoles = function(member)
     {
         const roleToAdd = member.guild.roles.filter((role) => currentRank.roleRegex.test(role.name)).array()[0];
 
-        if(roleToAdd)
+        user.rankRoleId = undefined;
+        if(roleToAdd && user.rankRoleId !== roleToAdd.id)
         {
-            member.addRole(roleToAdd);
-
-            const rolesToRemove = [];
-            for(const rankId in this.ranks)
-            {
-                const rank = this.ranks[rankId];
-                
-                if(rank.role !== currentRank.role)
+            member.addRole(roleToAdd).then(() => {
+                const rolesToRemove = [];
+                for(const rankId in this.ranks)
                 {
-                    const roles = member.roles.filter((role) => rank.roleRegex.test(role.name)).array();
+                    const rank = this.ranks[rankId];
 
-                    for(const role of roles)
-                        rolesToRemove.push(role);
+                    if(rank.role !== currentRank.role)
+                    {
+                        const roles = member.roles.filter((role) => rank.roleRegex.test(role.name)).array();
+
+                        for(const role of roles)
+                            rolesToRemove.push(role);
+                    }
                 }
-            }
 
-            if(rolesToRemove.length > 0)
-                member.removeRoles(rolesToRemove);
+                if(rolesToRemove.length > 0)
+                    member.removeRoles(rolesToRemove);
+            }).catch(() => {
+                console.error(`Could not add the rank role ${roleToAdd.name} to ${member.nickname || member.displayName}`);
+                user.rankRoleId = undefined;
+            })
         }
     }
 }

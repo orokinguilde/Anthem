@@ -270,7 +270,7 @@ Bot.prototype.initialize = function() {
         });
     });
 
-    client.on('message', message => {
+    client.on('message', message => {//message.member.nickname.displayName.removeRoles(message.guild.roles.filter((role) => role.name === '').array()[0].id)
         const checkForCommand = (regexCmd) => {
             return regexCmd.test(message.content);
         };
