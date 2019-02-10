@@ -110,9 +110,9 @@ BigBrowserV2.prototype.updateUserRoles = function(member)
     {
         const roleToAdd = member.guild.roles.filter((role) => currentRank.roleRegex.test(role.name)).array()[0];
 
-        user.rankRoleId = undefined;
         if(roleToAdd && user.rankRoleId !== roleToAdd.id)
         {
+            user.rankRoleId = roleToAdd.id;
             member.addRole(roleToAdd).then(() => {
                 const rolesToRemove = [];
                 for(const rankId in this.ranks)
