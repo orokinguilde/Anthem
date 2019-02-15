@@ -1,7 +1,7 @@
 
 const templates = [{
     key: 1,
-    name: 'Tout sobre, tout gris',
+    name: 'moderne et classe',
     template: {
         isDarkColor: true,
         isDarkBg: true
