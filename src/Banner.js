@@ -102,8 +102,8 @@ Banner.prototype.createCanvas = function(template) {
 
     const img = 'http://image.freepik.com/free-vector/green-energy-background_23-2147514943.jpg';
     const avatarImg = this.avatarUrl;
-    const orokinImg = 'https://cdn.discordapp.com/avatars/441334363334901771/6588b637773c28a8e65eeb6c35a8ca32.png?size=128';
-    
+    const orokinImg = 'https://cdn.discordapp.com/attachments/507085434719961098/545952727411195936/embleme_alliance.small.png?size=128';
+
     function greenBg()
     {
         ctx.fillStyle = bgLeftColor;
