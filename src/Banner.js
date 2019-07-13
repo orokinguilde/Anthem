@@ -327,7 +327,6 @@ Banner.prototype.createCanvas = function(template, callback) {
 
         function drawProgressBar(x, y, w, h, percent)
         {
-            percent = 1;
             ctx.fillStyle = progressBar.bgBorderColor;
             roundRect(ctx, x - 1, y - 1, w + 2, h + 2, (h + 2) / 2, true, false);
 
