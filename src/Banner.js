@@ -292,7 +292,7 @@ Banner.prototype.createCanvas = function(template, callback) {
         {
             drawText(x, y, 'RANK', 15, rankColor);
             drawText(x + 38 / 2 - dix(rank) * 10 - 20, y + 20, '#' + Math.trunc(rank), 30, rankColor);
-            drawText(x + 2 + 38 / 2 + dix(rank) * 10 + 15, y + 25, '/' + Math.trunc(rankTotal), 15, rankColor);
+            drawText(x + 7 + 38 / 2 + dix(rank) * 10 + 15, y + 25, '/' + Math.trunc(rankTotal), 15, rankColor);
         }
 
         function drawLevelName(x, y, levelName)
