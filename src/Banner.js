@@ -205,13 +205,13 @@ Banner.prototype.createCanvas = function(template, callback) {
         drawProgressBar(140, height - (120 - 80) - 5, width - (500 - 340), 20, progress);
 
         drawNickname(145, height - (120 - 63) - 5, nickname);
-        drawExp(width - (500 - 390), height - (120 - 63) - 5, exp, maxExp);
+        drawExp(width - (500 - 390) - (dix(exp) + dix(maxExp) - 2) * 11.5, height - (120 - 63) - 5, exp, maxExp);
 
         //drawLevel(310 + 100, 20, level)
         drawLevel(width - (500 - (310 + 100)), 15, level)
 
         //drawRank(210 + 100 - dix(rank) * 17, 20, rank);
-        drawRank(width - (500 - (210 + 80)), 15, rank);
+        drawRank(width - (500 - (210 + 80)) - 15, 15, rank);
 
         drawLevelName(110 + 100, 10, levelName);
 
@@ -262,7 +262,7 @@ Banner.prototype.createCanvas = function(template, callback) {
             exp = Math.trunc(exp);
             maxExp = maxExp;
             drawText(x, y, exp, 20, expPanel.leftColor);
-            drawText(x + (dix(exp) + 1) * 11.5, y, '/' + Math.trunc(maxExp) + ' XP', 20, expPanel.rightColor);
+            drawText(x + (dix(exp) + 1) * 11.5 + 1, y, '/' + Math.trunc(maxExp) + ' XP', 20, expPanel.rightColor);
         }
 
         /*
@@ -292,7 +292,7 @@ Banner.prototype.createCanvas = function(template, callback) {
         {
             drawText(x, y, 'RANK', 15, rankColor);
             drawText(x + 38 / 2 - dix(rank) * 10 - 20, y + 20, '#' + Math.trunc(rank), 30, rankColor);
-            drawText(x + 38 / 2 + dix(rank) * 10 + 15, y + 25, '/' + Math.trunc(rankTotal), 15, rankColor);
+            drawText(x + 2 + 38 / 2 + dix(rank) * 10 + 15, y + 25, '/' + Math.trunc(rankTotal), 15, rankColor);
         }
 
         function drawLevelName(x, y, levelName)
@@ -327,6 +327,7 @@ Banner.prototype.createCanvas = function(template, callback) {
 
         function drawProgressBar(x, y, w, h, percent)
         {
+            percent = 1;
             ctx.fillStyle = progressBar.bgBorderColor;
             roundRect(ctx, x - 1, y - 1, w + 2, h + 2, (h + 2) / 2, true, false);
 
@@ -349,9 +350,8 @@ Banner.prototype.createCanvas = function(template, callback) {
             }
 
             ctx.fillStyle = progressBar.bgColor;
-            for(var i = 0; i < 22; ++i)
-                drawCircle(x + 10 * (i + 1) + 5 * i, y + 10, 5);
-                
+            for(var i = 0; i < 25; ++i)
+                drawCircle(x + 10.4 * (i + 1) + 5 * i, y + 10, 5);
             
             var xpVocal = Math.trunc(expVocal);
             ctx.drawImage(iconXpVocal, x + 5, y + h + 3, 15, 15);
