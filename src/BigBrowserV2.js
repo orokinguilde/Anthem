@@ -1,4 +1,6 @@
 const moment = require('moment-timezone');
+const path = require('path');
+const fs = require('fs');
 
 function BigBrowserV2()
 { }
@@ -72,83 +74,15 @@ BigBrowserV2.prototype.getUserRanking = function(user, server)
     }
 }
 
-BigBrowserV2.prototype.ranks = {
-    0: {
-        name: 'Chair à canon'
-    },
-    50: {
-        name: 'Galinette cendrée'
-    },
-    100: {
-        name: 'Rejeté'
-    },
-    150: {
-        name: 'Bouclier humain'
-    },
-    200: {
-        name: 'Noob'
-    },
-    250: {
-        name: 'Mauvaise herbe'
-    },
-    300: {
-        name: 'Jeune pousse écrasée'
-    },
-    350: {
-        name: 'Poussin KFC'
-    },
-    400: {
-        name: 'Pion du neant'
-    },
-    450: {
-        name: 'Vagabon'
-    },
-    500: {
-        name: 'Tenno'
-    },
-    550: {
-        name: 'Portier de Lua'
-    },
-    600: {
-        name: 'Apprenti samurai'
-    },
-    650: {
-        name: 'Samurai'
-    },
-    700: {
-        name: 'Rōnin'
-    },
-    750: {
-        name: 'Acharné'
-    },
-    800: {
-        name: 'Fanatique'
-    },
-    850: {
-        name: 'Dur à cuire'
-    },
-    900: {
-        name: 'Orokin apprenti'
-    },
-    950: {
-        name: 'Orokin'
-    },
-    1000: {
-        name: 'Orokin officier'
-    },
-    1050: {
-        name: 'Orokin general'
-    },
-    1100: {
-        name: 'Orokin etat major'
-    },
-    1150: {
-        name: 'Orokin marechal'
-    },
-    1200: {
-        name: 'Vaulted'
-    }
-};
+BigBrowserV2.prototype.ranks = {};
+
+let ranks = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'ranks.json')).toString());
+ranks = ranks.sort((a, b) => a.level - b.level);
+for(const rank of ranks)
+{
+    rank.roleRegex = new RegExp('[^a-zA-Z0-9\\s]\\s*' + rank.role.replace(/:.+:/img, '').trim() + '$');
+    BigBrowserV2.prototype.ranks[rank.level] = rank;
+}
 
 let index = -1;
 let lastRank = undefined;
@@ -162,6 +96,46 @@ for(const rankStart in BigBrowserV2.prototype.ranks)
         lastRank.end = rank.start;
 
     lastRank = rank;
+}
+
+BigBrowserV2.prototype.updateUserRoles = function(member)
+{
+    const user = this.getUser(member);
+    const rank = this.getUserRank(user);
+    const currentRank = rank.currentRank;
+
+    const hasCurrentRole = member.roles.some((role) => role.name === currentRank.role);
+
+    if(!hasCurrentRole)
+    {
+        const roleToAdd = member.guild.roles.filter((role) => currentRank.roleRegex.test(role.name)).array()[0];
+
+        if(roleToAdd && user.rankRoleId !== roleToAdd.id)
+        {
+            user.rankRoleId = roleToAdd.id;
+            member.addRole(roleToAdd).then(() => {
+                const rolesToRemove = [];
+                for(const rankId in this.ranks)
+                {
+                    const rank = this.ranks[rankId];
+
+                    if(rank.role !== currentRank.role)
+                    {
+                        const roles = member.roles.filter((role) => rank.roleRegex.test(role.name)).array();
+
+                        for(const role of roles)
+                            rolesToRemove.push(role);
+                    }
+                }
+
+                if(rolesToRemove.length > 0)
+                    member.removeRoles(rolesToRemove);
+            }).catch(() => {
+                console.error(`Could not add the rank role ${roleToAdd.name} to ${member.nickname || member.displayName}`);
+                user.rankRoleId = undefined;
+            })
+        }
+    }
 }
 
 BigBrowserV2.prototype.getUserRank = function(user, exp)
@@ -392,6 +366,7 @@ BigBrowserV2.prototype.updateServer = function(guild)
         if(member.displayName !== 'Akamelia ♡')
             return;*/
         const user = this.getUser(member);
+        let updated = false;
 
         let isInAnthem = undefined;
         if(member.user.presence && member.user.presence.game && member.user.presence.game.name)
@@ -455,6 +430,7 @@ BigBrowserV2.prototype.updateServer = function(guild)
             else
             {
                 user.stats.totalVoiceTimeMs += now - user.stats.lastVocalDate;
+                updated = true;
             }
             
             user.stats.lastVocalDate = now;
@@ -463,6 +439,9 @@ BigBrowserV2.prototype.updateServer = function(guild)
         {
             user.stats.wasVoicingLastTick = false;
         }
+        
+        if(updated)
+            this.updateUserRoles(member);
     })
 
     onDone();
@@ -493,6 +472,8 @@ BigBrowserV2.prototype.updateUserText = function(message)
         ++user.stats.nbTextMessagesWithDuplicates;
         user.stats.totalTextSizeWithDuplicates += message.content.length;
         user.stats.lastTextDate = now;
+        
+        this.updateUserRoles(member);
     }
 }
 
