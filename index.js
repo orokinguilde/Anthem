@@ -15,7 +15,7 @@ bot.debug = fs.existsSync('./env.json');
 
 console.log('Debug mode:', bot.debug ? 'on' : 'off');
 
-const socket = require('socket.io')(process.env.PORT);
+//const socket = require('socket.io')(process.env.PORT);
 
 initialize(bot);
 
