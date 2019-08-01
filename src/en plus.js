@@ -131,4 +131,4 @@ bot.on('message', function(message) {
 	user = message.member.user.tag
 	console.log("\n\nL'utilisateur " + user + " a utilisé la commande !servs.")
 	}		
- }
+ })
