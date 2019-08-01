@@ -9,60 +9,6 @@ function random(min, max){
      randnum = Math.floor(Math.random() * (max - min +1)+ min);
  }
 
- function test(min, max){
-     min = Math.ceil(1);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
- function random3(min, max){
-     min = Math.ceil(1);
-     max = Math.floor(6);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
-  function random4(min, max){
-     min = Math.ceil(1);
-     max = Math.floor(2);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
-   function random5(min, max){
-     min = Math.ceil(0);
-     max = Math.floor(10);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
-    function randombj1(min, max){
-     min = Math.ceil(3);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
-function randombj2(min, max){
-     min = Math.ceil(6);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
- function randombj3(min, max){
-     min = Math.ceil(9);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
- function randombj4(min, max){
-     min = Math.ceil(12);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
- function randombj5(min, max){
-     min = Math.ceil(15);
-     max = Math.floor(21);
-     randnum = Math.floor(Math.random() * (max - min +1)+ min);
- }
-
  //Accueil et départ des membres et attribution d'un rôle
 
 bot.on("guildMemberAdd", member => {
@@ -132,3 +78,4 @@ bot.on('message', function(message) {
 	console.log("\n\nL'utilisateur " + user + " a utilisé la commande !servs.")
 	}		
  })
+bot.login(process.env.TOKEN);
