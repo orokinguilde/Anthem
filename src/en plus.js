@@ -130,4 +130,5 @@ bot.on('message', function(message) {
     	message.channel.send('Le serveur **' + nom + '** a été créé le **' + cdate + '**.' + '\nVous l"avez rejoint le **' + mdate + '** et en êtes ainsi le membre n°**' + numero + '**.')
 	user = message.member.user.tag
 	console.log("\n\nL'utilisateur " + user + " a utilisé la commande !servs.")
+	}		
  }
