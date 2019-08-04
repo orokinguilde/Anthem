@@ -1,7 +1,4 @@
-const Discord = require('discord.js');
 const Message = require('./Message');
-const globals = require('./globals');
-const moment = require('moment-timezone');
 
 function Server(application)
 {

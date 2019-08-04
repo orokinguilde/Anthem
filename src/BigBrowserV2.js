@@ -27,7 +27,8 @@ BigBrowserV2.prototype.getServer = function(guild)
             id: serverId,
             name: guild.name,
             createDate: now,
-            users: {}
+            users: {},
+            currentDayOfTheWeek: new Date().getDay()
         };
 
         servers[serverId] = server;
@@ -38,13 +39,13 @@ BigBrowserV2.prototype.getServer = function(guild)
 
 BigBrowserV2.prototype.getUserVoiceExp = function(user)
 {
-    const score30minutes = user.stats.totalVoiceTimeMs / (1000 * 60 * 30);
+    const score30minutes = user.stats ? user.stats.totalVoiceTimeMs / (1000 * 60 * 30) : 0;
     return score30minutes;
 }
 
 BigBrowserV2.prototype.getUserTextExp = function(user)
 {
-    const score500chars = user.stats.totalTextSize / 500;
+    const score500chars = user.stats ? user.stats.totalTextSize / 500 : 0;
     return score500chars;
 }
 
@@ -218,59 +219,72 @@ BigBrowserV2.prototype.getUser = function(member)
         };
         server.users[id] = user;
     }
-    
-    user.lastUpdate = now;
-    user.displayName = member.displayName;
-    user.name = member.nickname;
 
-    if(member.bot !== undefined)
-        user.isBot = member.bot;
-    if(member.user && member.user.bot !== undefined)
-        user.isBot = member.user.bot;
-    
-    if(!user.stats)
-    {
-        user.stats = {
-            lastVocalDate: undefined,
-            totalVoiceTimeMs: 0,
-            nbTextMessages: 0,
-            nbTextMessagesWithDuplicates: 0,
-            totalTextSize: 0,
-            totalTextSizeWithDuplicates: 0,
-            lastTextContent: undefined,
-            lastTextDate: undefined,
-            lastNotDuplicateTextDate: undefined,
-            wasVoicingLastTick: false
-        };
-    }
+    if(!user.day)
+        user.day = {};
+    if(!user.week)
+        user.week = {};
 
-    if(!user.joinedTimestamp)
-        user.joinedTimestamp = member.joinedTimestamp;
+    const initUser = (user) => {
+        user.lastUpdate = now;
+        user.displayName = member.displayName;
+        user.name = member.nickname;
 
-    if(member.roles)
-        user.roles = member.roles.array().map((role) => role.name);
+        if(member.bot !== undefined)
+            user.isBot = member.bot;
+        if(member.user && member.user.bot !== undefined)
+            user.isBot = member.user.bot;
+        
+        if(!user.stats)
+        {
+            user.stats = {
+                lastVocalDate: undefined,
+                totalVoiceTimeMs: 0,
+                nbTextMessages: 0,
+                nbTextMessagesWithDuplicates: 0,
+                totalTextSize: 0,
+                totalTextSizeWithDuplicates: 0,
+                lastTextContent: undefined,
+                lastTextDate: undefined,
+                lastNotDuplicateTextDate: undefined,
+                wasVoicingLastTick: false
+            };
+        }
 
-    if(member.roles)
-        user.isWeird = member.roles.array().some((role) => role.name === 'EN phase de test' || role.name === 'Tenno') && !user.stats.totalVoiceTimeMs;
+        if(!user.joinedTimestamp)
+            user.joinedTimestamp = member.joinedTimestamp;
 
-    const zero = (name) => {
-        if(user.stats[name] === undefined)
-            user.stats[name] = 0;
-    }
-    
-    zero('totalAnthemDiscordTimeMs');
-    zero('totalAnthemDiscordTimeMsNot');
-    zero('totalAnthemDiscordTimeMsUndefined');
+        if(member.roles)
+            user.roles = member.roles.array().map((role) => role.name);
+
+        if(member.roles)
+            user.isWeird = member.roles.array().some((role) => role.name === 'EN phase de test' || role.name === 'Tenno') && !user.stats.totalVoiceTimeMs;
+
+        const zero = (name) => {
+            if(user.stats[name] === undefined)
+                user.stats[name] = 0;
+        }
+        
+        zero('totalAnthemDiscordTimeMs');
+        zero('totalAnthemDiscordTimeMsNot');
+        zero('totalAnthemDiscordTimeMsUndefined');
+    };
+
+    initUser(user);
+    initUser(user.day);
+    initUser(user.week);
 
     return user;
 }
 
 BigBrowserV2.prototype.save = function()
 {
-    return this.getServers();
+    return {
+        servers: this.getServers()
+    };
 }
 BigBrowserV2.prototype.load = function(obj, ctx) {
-    this.servers = obj.servers;
+    this.servers = obj.servers || obj;
 }
 
 BigBrowserV2.prototype.initWithV1Data = function(servers)
@@ -328,7 +342,7 @@ BigBrowserV2.prototype.initWithV1Data = function(servers)
     }
 }
 
-BigBrowserV2.prototype.updateServer = function(guild)
+BigBrowserV2.prototype.updateServer = async function(guild)
 {
     const now = Date.now();
 
@@ -368,81 +382,89 @@ BigBrowserV2.prototype.updateServer = function(guild)
         const user = this.getUser(member);
         let updated = false;
 
-        let isInAnthem = undefined;
-        if(member.user.presence && member.user.presence.game && member.user.presence.game.name)
-            isInAnthem = member.user.presence.game.name.toLowerCase() === 'anthem';
+        const updateUser = (user) => {
+            let isInAnthem = undefined;
+            if(member.user.presence && member.user.presence.game && member.user.presence.game.name)
+                isInAnthem = member.user.presence.game.name.toLowerCase() === 'anthem';
 
-        if(isInAnthem !== undefined)
-        {
-            if(isInAnthem)
+            if(isInAnthem !== undefined)
             {
-                if(!user.stats.wasAnthemDiscordLastTick)
+                if(isInAnthem)
                 {
-                    user.stats.wasAnthemDiscordLastTick = true;
+                    if(!user.stats.wasAnthemDiscordLastTick)
+                    {
+                        user.stats.wasAnthemDiscordLastTick = true;
+                    }
+                    else
+                    {
+                        user.stats.totalAnthemDiscordTimeMs += now - user.stats.lastAnthemDiscordDate;
+                    }
+                    
+                    user.stats.lastAnthemDiscordDate = now;
+                    user.stats.wasAnthemDiscordLastTickNot = false;
                 }
                 else
                 {
-                    user.stats.totalAnthemDiscordTimeMs += now - user.stats.lastAnthemDiscordDate;
+                    if(!user.stats.wasAnthemDiscordLastTickNot)
+                    {
+                        user.stats.wasAnthemDiscordLastTickNot = true;
+                    }
+                    else
+                    {
+                        user.stats.totalAnthemDiscordTimeMsNot += now - user.stats.lastAnthemDiscordDateNot;
+                    }
+                    
+                    user.stats.lastAnthemDiscordDateNot = now;
+                    user.stats.wasAnthemDiscordLastTick = false;
                 }
                 
-                user.stats.lastAnthemDiscordDate = now;
-                user.stats.wasAnthemDiscordLastTickNot = false;
+                user.stats.wasAnthemDiscordLastTickUndefined = false;
             }
             else
             {
-                if(!user.stats.wasAnthemDiscordLastTickNot)
+                if(!user.stats.wasAnthemDiscordLastTickUndefined)
                 {
-                    user.stats.wasAnthemDiscordLastTickNot = true;
+                    user.stats.wasAnthemDiscordLastTickUndefined = true;
                 }
                 else
                 {
-                    user.stats.totalAnthemDiscordTimeMsNot += now - user.stats.lastAnthemDiscordDateNot;
+                    user.stats.totalAnthemDiscordTimeMsUndefined += now - user.stats.lastAnthemDiscordDateUndefined;
                 }
                 
-                user.stats.lastAnthemDiscordDateNot = now;
+                user.stats.lastAnthemDiscordDateUndefined = now;
+                user.stats.wasAnthemDiscordLastTickNot = false;
                 user.stats.wasAnthemDiscordLastTick = false;
             }
             
-            user.stats.wasAnthemDiscordLastTickUndefined = false;
-        }
-        else
-        {
-            if(!user.stats.wasAnthemDiscordLastTickUndefined)
+            if(member.voiceChannelID && !member.deaf && member.voiceChannelID !== guild.afkChannelID)
             {
-                user.stats.wasAnthemDiscordLastTickUndefined = true;
+                if(!user.stats.wasVoicingLastTick)
+                {
+                    user.stats.wasVoicingLastTick = true;
+                }
+                else
+                {
+                    user.stats.totalVoiceTimeMs += now - user.stats.lastVocalDate;
+                    updated = true;
+                }
+                
+                user.stats.lastVocalDate = now;
             }
             else
             {
-                user.stats.totalAnthemDiscordTimeMsUndefined += now - user.stats.lastAnthemDiscordDateUndefined;
+                user.stats.wasVoicingLastTick = false;
             }
-            
-            user.stats.lastAnthemDiscordDateUndefined = now;
-            user.stats.wasAnthemDiscordLastTickNot = false;
-            user.stats.wasAnthemDiscordLastTick = false;
-        }
-        
-        if(member.voiceChannelID && !member.deaf && member.voiceChannelID !== guild.afkChannelID)
-        {
-            if(!user.stats.wasVoicingLastTick)
-            {
-                user.stats.wasVoicingLastTick = true;
-            }
-            else
-            {
-                user.stats.totalVoiceTimeMs += now - user.stats.lastVocalDate;
-                updated = true;
-            }
-            
-            user.stats.lastVocalDate = now;
-        }
-        else
-        {
-            user.stats.wasVoicingLastTick = false;
-        }
+        };
+
+        updateUser(user);
+        updateUser(user.day);
+        updateUser(user.week);
         
         if(updated)
             this.updateUserRoles(member);
     })
+
+    await this.updateTimeLimitedMetrics(guild);
 
     onDone();
 }
@@ -455,25 +477,127 @@ BigBrowserV2.prototype.updateUserText = function(message)
     {
         const member = message.member;
 
-        /*
-        if(member.displayName !== 'Akamelia ♡')
-            return;*/
         const user = this.getUser(member);
         const now = Date.now();
 
-        if(user.stats.lastTextContent !== content)
-        {
-            ++user.stats.nbTextMessages;
-            user.stats.totalTextSize += message.content.length;
-            user.stats.lastNotDuplicateTextDate = now;
-        }
+        const updateUser = (user) => {
+            if(user.stats.lastTextContent !== content)
+            {
+                ++user.stats.nbTextMessages;
+                user.stats.totalTextSize += message.content.length;
+                user.stats.lastNotDuplicateTextDate = now;
+            }
 
-        user.stats.lastTextContent = content;
-        ++user.stats.nbTextMessagesWithDuplicates;
-        user.stats.totalTextSizeWithDuplicates += message.content.length;
-        user.stats.lastTextDate = now;
+            user.stats.lastTextContent = content;
+            ++user.stats.nbTextMessagesWithDuplicates;
+            user.stats.totalTextSizeWithDuplicates += message.content.length;
+            user.stats.lastTextDate = now;
+        };
+
+        updateUser(user);
+        updateUser(user.day);
+        updateUser(user.week);
         
         this.updateUserRoles(member);
+    }
+}
+
+BigBrowserV2.prototype.updateTimeLimitedMetrics = function(guild)
+{
+    const server = this.getServer(guild);
+
+    if(server && server.tracking !== false)
+    {
+        const currentDayOfTheWeek = new Date().getDay();
+
+        if(server.lastDayOfTheWeek === undefined || server.lastDayOfTheWeek !== currentDayOfTheWeek)
+        {
+            console.log('Processing best users');
+
+            const findBestAndErase = (users, propName) => {
+                let maxValue = null;
+                let maxUser;
+
+                for(const userId in users)
+                {
+                    const user = users[userId];
+                    const userData = user[propName];
+                    if(!user.isBot && userData)
+                    {
+                        const value = this.getUserExp(userData);
+                        delete user[propName];
+
+                        if(maxValue === null || maxValue < value)
+                        {
+                            maxValue = value;
+                            maxUser = user;
+                        }
+                    }
+                }
+
+                if(maxValue === null)
+                {
+                    return undefined;
+                }
+                else
+                {
+                    return {
+                        user: maxUser,
+                        value: maxValue
+                    };
+                }
+            };
+
+            const setUniqueRoleToUser = async (userObj, roleRegex) => {
+                const role = guild.roles.filter((role) => roleRegex.test(role.name)).array()[0];
+        
+                if(role)
+                {
+                    await Promise.all(
+                        guild
+                        .members
+                        .filter((member) => member.roles.has(role.id))
+                        .map((member) => member.removeRole(role))
+                    );
+
+                    const member = guild.members.filter((member) => member.id === userObj.id).first();
+                    
+                    if(member)
+                    {
+                        console.error(`Member ${userObj.id} / ${userObj.displayName} is the best user !`);
+
+                        await member.addRole(role);
+                    }
+                    else
+                    {
+                        console.error(`Could not find the member ${userObj.id} / ${userObj.displayName} to apply to the role of the best user`);
+                    }
+                }
+                else
+                {
+                    console.error(`Could not find the role ${role} to apply to the best user ${userObj.id} / ${userObj.displayName}`);
+                }
+            }
+
+            const dayBestUser = findBestAndErase(server.users, 'day');
+            if(dayBestUser)
+            {
+                setUniqueRoleToUser(dayBestUser.user, /LégendaryDay/img);
+            }
+
+            if(currentDayOfTheWeek === 1)
+            {
+                const weekBestUser = findBestAndErase(server.users, 'week');
+                if(weekBestUser)
+                {
+                    setUniqueRoleToUser(weekBestUser.user, /LégendaryWeek/img);
+                }
+
+                server.weekBestUsers = { };
+            }
+            
+            server.lastDayOfTheWeek = currentDayOfTheWeek;
+        }
     }
 }
 
