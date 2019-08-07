@@ -495,7 +495,7 @@ Bot.prototype.initialize = function() {
             const rank = this.bigBrowserV2.getUserRanking(user, message.guild);
             
             const banner = new Banner({
-                avatarUrl: message.member.user.avatarURL.replace('?size=2048', '?size=128'),
+                avatarUrl: message.member.user.avatarURL ? message.member.user.avatarURL.replace('?size=2048', '?size=128') : 'https://cdn.discordapp.com/attachments/472724867381461012/608653652739227658/image_unknown.png?size=128',
                 nickname: message.member.displayName,
                 rankIndex: rank.index,
                 rankTotal: rank.total,
